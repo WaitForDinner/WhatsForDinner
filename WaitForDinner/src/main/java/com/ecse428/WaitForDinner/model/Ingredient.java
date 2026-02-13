@@ -1,11 +1,12 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.35.0.8072.d3fbfafbc modeling language!*/
+/*This code was generated using the UMPLE 1.36.0.8091.03bcab5b3 modeling language!*/
 
 package com.ecse428.WaitForDinner.model;
 import java.util.*;
+
 import jakarta.persistence.*;
 
-// line 56 "../../../../../model.ump"
+// line 45 "../../../../../model.ump"
 // line 99 "../../../../../model.ump"
 @Entity
 @Table(name = "ingredients")
@@ -17,36 +18,37 @@ public class Ingredient
   //------------------------
 
   //Ingredient Attributes
+  private String name;
+  private int shelfLife;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int ingredientId;
-  
-  private String name;
-  
-  private String shelfLife;
 
-  //Ingredient Associations
-  @ManyToMany(mappedBy = "ingredients")
-  private List<Pantry> pantries;
-  
-  @ManyToMany(mappedBy = "ingredients")
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "ingredient_histories",
+      joinColumns = @JoinColumn(name = "ingredient_id"),
+      inverseJoinColumns = @JoinColumn(name = "history_id"))
+  private List<History> histories;
+
+  @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY)
   private List<User> users;
-  
-  @ManyToMany(mappedBy = "ingredients")
-  private List<Recipe> recipes;
+
+  @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private List<Need> needs;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Ingredient(String aName, String aShelfLife, int aIngredientId)
+  public Ingredient(String aName, int aShelfLife, int aIngredientId)
   {
     name = aName;
     shelfLife = aShelfLife;
     ingredientId = aIngredientId;
-    pantries = new ArrayList<Pantry>();
+    histories = new ArrayList<History>();
     users = new ArrayList<User>();
-    recipes = new ArrayList<Recipe>();
+    needs = new ArrayList<Need>();
   }
 
   //------------------------
@@ -61,7 +63,7 @@ public class Ingredient
     return wasSet;
   }
 
-  public boolean setShelfLife(String aShelfLife)
+  public boolean setShelfLife(int aShelfLife)
   {
     boolean wasSet = false;
     shelfLife = aShelfLife;
@@ -82,7 +84,7 @@ public class Ingredient
     return name;
   }
 
-  public String getShelfLife()
+  public int getShelfLife()
   {
     return shelfLife;
   }
@@ -92,33 +94,33 @@ public class Ingredient
     return ingredientId;
   }
   /* Code from template association_GetMany */
-  public Pantry getPantry(int index)
+  public History getHistory(int index)
   {
-    Pantry aPantry = pantries.get(index);
-    return aPantry;
+    History aHistory = histories.get(index);
+    return aHistory;
   }
 
-  public List<Pantry> getPantries()
+  public List<History> getHistories()
   {
-    List<Pantry> newPantries = Collections.unmodifiableList(pantries);
-    return newPantries;
+    List<History> newHistories = Collections.unmodifiableList(histories);
+    return newHistories;
   }
 
-  public int numberOfPantries()
+  public int numberOfHistories()
   {
-    int number = pantries.size();
+    int number = histories.size();
     return number;
   }
 
-  public boolean hasPantries()
+  public boolean hasHistories()
   {
-    boolean has = pantries.size() > 0;
+    boolean has = histories.size() > 0;
     return has;
   }
 
-  public int indexOfPantry(Pantry aPantry)
+  public int indexOfHistory(History aHistory)
   {
-    int index = pantries.indexOf(aPantry);
+    int index = histories.indexOf(aHistory);
     return index;
   }
   /* Code from template association_GetMany */
@@ -152,114 +154,114 @@ public class Ingredient
     return index;
   }
   /* Code from template association_GetMany */
-  public Recipe getRecipe(int index)
+  public Need getNeed(int index)
   {
-    Recipe aRecipe = recipes.get(index);
-    return aRecipe;
+    Need aNeed = needs.get(index);
+    return aNeed;
   }
 
-  public List<Recipe> getRecipes()
+  public List<Need> getNeeds()
   {
-    List<Recipe> newRecipes = Collections.unmodifiableList(recipes);
-    return newRecipes;
+    List<Need> newNeeds = Collections.unmodifiableList(needs);
+    return newNeeds;
   }
 
-  public int numberOfRecipes()
+  public int numberOfNeeds()
   {
-    int number = recipes.size();
+    int number = needs.size();
     return number;
   }
 
-  public boolean hasRecipes()
+  public boolean hasNeeds()
   {
-    boolean has = recipes.size() > 0;
+    boolean has = needs.size() > 0;
     return has;
   }
 
-  public int indexOfRecipe(Recipe aRecipe)
+  public int indexOfNeed(Need aNeed)
   {
-    int index = recipes.indexOf(aRecipe);
+    int index = needs.indexOf(aNeed);
     return index;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfPantries()
+  public static int minimumNumberOfHistories()
   {
     return 0;
   }
   /* Code from template association_AddManyToManyMethod */
-  public boolean addPantry(Pantry aPantry)
+  public boolean addHistory(History aHistory)
   {
     boolean wasAdded = false;
-    if (pantries.contains(aPantry)) { return false; }
-    pantries.add(aPantry);
-    if (aPantry.indexOfIngredient(this) != -1)
+    if (histories.contains(aHistory)) { return false; }
+    histories.add(aHistory);
+    if (aHistory.indexOfIngredient(this) != -1)
     {
       wasAdded = true;
     }
     else
     {
-      wasAdded = aPantry.addIngredient(this);
+      wasAdded = aHistory.addIngredient(this);
       if (!wasAdded)
       {
-        pantries.remove(aPantry);
+        histories.remove(aHistory);
       }
     }
     return wasAdded;
   }
   /* Code from template association_RemoveMany */
-  public boolean removePantry(Pantry aPantry)
+  public boolean removeHistory(History aHistory)
   {
     boolean wasRemoved = false;
-    if (!pantries.contains(aPantry))
+    if (!histories.contains(aHistory))
     {
       return wasRemoved;
     }
 
-    int oldIndex = pantries.indexOf(aPantry);
-    pantries.remove(oldIndex);
-    if (aPantry.indexOfIngredient(this) == -1)
+    int oldIndex = histories.indexOf(aHistory);
+    histories.remove(oldIndex);
+    if (aHistory.indexOfIngredient(this) == -1)
     {
       wasRemoved = true;
     }
     else
     {
-      wasRemoved = aPantry.removeIngredient(this);
+      wasRemoved = aHistory.removeIngredient(this);
       if (!wasRemoved)
       {
-        pantries.add(oldIndex,aPantry);
+        histories.add(oldIndex,aHistory);
       }
     }
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addPantryAt(Pantry aPantry, int index)
+  public boolean addHistoryAt(History aHistory, int index)
   {  
     boolean wasAdded = false;
-    if(addPantry(aPantry))
+    if(addHistory(aHistory))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPantries()) { index = numberOfPantries() - 1; }
-      pantries.remove(aPantry);
-      pantries.add(index, aPantry);
+      if(index > numberOfHistories()) { index = numberOfHistories() - 1; }
+      histories.remove(aHistory);
+      histories.add(index, aHistory);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMovePantryAt(Pantry aPantry, int index)
+  public boolean addOrMoveHistoryAt(History aHistory, int index)
   {
     boolean wasAdded = false;
-    if(pantries.contains(aPantry))
+    if(histories.contains(aHistory))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPantries()) { index = numberOfPantries() - 1; }
-      pantries.remove(aPantry);
-      pantries.add(index, aPantry);
+      if(index > numberOfHistories()) { index = numberOfHistories() - 1; }
+      histories.remove(aHistory);
+      histories.add(index, aHistory);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addPantryAt(aPantry, index);
+      wasAdded = addHistoryAt(aHistory, index);
     }
     return wasAdded;
   }
@@ -346,95 +348,85 @@ public class Ingredient
     return wasAdded;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfRecipes()
+  public static int minimumNumberOfNeeds()
   {
     return 0;
   }
-  /* Code from template association_AddManyToManyMethod */
-  public boolean addRecipe(Recipe aRecipe)
+  /* Code from template association_AddManyToOne */
+  public Need addNeed(int aAmount, String aModifier, int aNeedId, Recipe aRecipe)
+  {
+    return new Need(aAmount, aModifier, aNeedId, aRecipe, this);
+  }
+
+  public boolean addNeed(Need aNeed)
   {
     boolean wasAdded = false;
-    if (recipes.contains(aRecipe)) { return false; }
-    recipes.add(aRecipe);
-    if (aRecipe.indexOfIngredient(this) != -1)
+    if (needs.contains(aNeed)) { return false; }
+    Ingredient existingIngredient = aNeed.getIngredient();
+    boolean isNewIngredient = existingIngredient != null && !this.equals(existingIngredient);
+    if (isNewIngredient)
     {
-      wasAdded = true;
+      aNeed.setIngredient(this);
     }
     else
     {
-      wasAdded = aRecipe.addIngredient(this);
-      if (!wasAdded)
-      {
-        recipes.remove(aRecipe);
-      }
+      needs.add(aNeed);
     }
+    wasAdded = true;
     return wasAdded;
   }
-  /* Code from template association_RemoveMany */
-  public boolean removeRecipe(Recipe aRecipe)
+
+  public boolean removeNeed(Need aNeed)
   {
     boolean wasRemoved = false;
-    if (!recipes.contains(aRecipe))
+    //Unable to remove aNeed, as it must always have a ingredient
+    if (!this.equals(aNeed.getIngredient()))
     {
-      return wasRemoved;
-    }
-
-    int oldIndex = recipes.indexOf(aRecipe);
-    recipes.remove(oldIndex);
-    if (aRecipe.indexOfIngredient(this) == -1)
-    {
+      needs.remove(aNeed);
       wasRemoved = true;
-    }
-    else
-    {
-      wasRemoved = aRecipe.removeIngredient(this);
-      if (!wasRemoved)
-      {
-        recipes.add(oldIndex,aRecipe);
-      }
     }
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addRecipeAt(Recipe aRecipe, int index)
+  public boolean addNeedAt(Need aNeed, int index)
   {  
     boolean wasAdded = false;
-    if(addRecipe(aRecipe))
+    if(addNeed(aNeed))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfRecipes()) { index = numberOfRecipes() - 1; }
-      recipes.remove(aRecipe);
-      recipes.add(index, aRecipe);
+      if(index > numberOfNeeds()) { index = numberOfNeeds() - 1; }
+      needs.remove(aNeed);
+      needs.add(index, aNeed);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveRecipeAt(Recipe aRecipe, int index)
+  public boolean addOrMoveNeedAt(Need aNeed, int index)
   {
     boolean wasAdded = false;
-    if(recipes.contains(aRecipe))
+    if(needs.contains(aNeed))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfRecipes()) { index = numberOfRecipes() - 1; }
-      recipes.remove(aRecipe);
-      recipes.add(index, aRecipe);
+      if(index > numberOfNeeds()) { index = numberOfNeeds() - 1; }
+      needs.remove(aNeed);
+      needs.add(index, aNeed);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addRecipeAt(aRecipe, index);
+      wasAdded = addNeedAt(aNeed, index);
     }
     return wasAdded;
   }
 
   public void delete()
   {
-    ArrayList<Pantry> copyOfPantries = new ArrayList<Pantry>(pantries);
-    pantries.clear();
-    for(Pantry aPantry : copyOfPantries)
+    ArrayList<History> copyOfHistories = new ArrayList<History>(histories);
+    histories.clear();
+    for(History aHistory : copyOfHistories)
     {
-      aPantry.removeIngredient(this);
+      aHistory.removeIngredient(this);
     }
     ArrayList<User> copyOfUsers = new ArrayList<User>(users);
     users.clear();
@@ -442,11 +434,10 @@ public class Ingredient
     {
       aUser.removeIngredient(this);
     }
-    ArrayList<Recipe> copyOfRecipes = new ArrayList<Recipe>(recipes);
-    recipes.clear();
-    for(Recipe aRecipe : copyOfRecipes)
+    for(int i=needs.size(); i > 0; i--)
     {
-      aRecipe.removeIngredient(this);
+      Need aNeed = needs.get(i - 1);
+      aNeed.delete();
     }
   }
 

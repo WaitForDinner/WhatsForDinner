@@ -1,11 +1,12 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.35.0.8072.d3fbfafbc modeling language!*/
+/*This code was generated using the UMPLE 1.36.0.8091.03bcab5b3 modeling language!*/
 
 package com.ecse428.WaitForDinner.model;
 import java.util.*;
+
 import jakarta.persistence.*;
 
-// line 37 "../../../../../model.ump"
+// line 21 "../../../../../model.ump"
 // line 89 "../../../../../model.ump"
 @Entity
 @Table(name = "recipes")
@@ -17,85 +18,58 @@ public class Recipe
   //------------------------
 
   //Recipe Attributes
+  private int steps;
+  private String difficulty;
+  private int time;
+  private int portions;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int recipeId;
-  
-  private String name;
-  
-  @Column(columnDefinition = "TEXT")
-  private String steps;
-  
-  private String difficulty;
-  
-  private int time;
-  
-  private int portions;
 
-  //Recipe Associations
-  @ManyToMany
-  @JoinTable(
-    name = "recipe_folder",
-    joinColumns = @JoinColumn(name = "recipe_id"),
-    inverseJoinColumns = @JoinColumn(name = "folder_id")
-  )
-  private List<Folder> folders;
-  
-  @ManyToMany
-  @JoinTable(
-    name = "recipe_ingredient",
-    joinColumns = @JoinColumn(name = "recipe_id"),
-    inverseJoinColumns = @JoinColumn(name = "ingredient_id")
-  )
-  private List<Ingredient> ingredients;
-  
-  @ManyToMany
-  @JoinTable(
-    name = "recipe_diet_type",
-    joinColumns = @JoinColumn(name = "recipe_id"),
-    inverseJoinColumns = @JoinColumn(name = "diet_type_id")
-  )
-  private List<DietType> dietTypes;
-  
-  @ManyToMany
-  @JoinTable(
-    name = "recipe_preference_type",
-    joinColumns = @JoinColumn(name = "recipe_id"),
-    inverseJoinColumns = @JoinColumn(name = "preference_type_id")
-  )
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "recipe_preference_types",
+      joinColumns = @JoinColumn(name = "recipe_id"),
+      inverseJoinColumns = @JoinColumn(name = "preference_type_id"))
   private List<PreferenceType> preferenceTypes;
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "recipe_diet_types",
+      joinColumns = @JoinColumn(name = "recipe_id"),
+      inverseJoinColumns = @JoinColumn(name = "diet_type_id"))
+  private List<DietType> dietTypes;
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "recipe_folders",
+      joinColumns = @JoinColumn(name = "recipe_id"),
+      inverseJoinColumns = @JoinColumn(name = "folder_id"))
+  private List<Folder> folders;
+
+  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private List<Need> needs;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Recipe(String aName, String aSteps, String aDifficulty, int aTime, int aPortions, int aRecipeId)
+  public Recipe(int aSteps, String aDifficulty, int aTime, int aPortions, int aRecipeId)
   {
-    name = aName;
     steps = aSteps;
     difficulty = aDifficulty;
     time = aTime;
     portions = aPortions;
     recipeId = aRecipeId;
-    folders = new ArrayList<Folder>();
-    ingredients = new ArrayList<Ingredient>();
-    dietTypes = new ArrayList<DietType>();
     preferenceTypes = new ArrayList<PreferenceType>();
+    dietTypes = new ArrayList<DietType>();
+    folders = new ArrayList<Folder>();
+    needs = new ArrayList<Need>();
   }
 
   //------------------------
   // INTERFACE
   //------------------------
 
-  public boolean setName(String aName)
-  {
-    boolean wasSet = false;
-    name = aName;
-    wasSet = true;
-    return wasSet;
-  }
-
-  public boolean setSteps(String aSteps)
+  public boolean setSteps(int aSteps)
   {
     boolean wasSet = false;
     steps = aSteps;
@@ -135,12 +109,7 @@ public class Recipe
     return wasSet;
   }
 
-  public String getName()
-  {
-    return name;
-  }
-
-  public String getSteps()
+  public int getSteps()
   {
     return steps;
   }
@@ -165,63 +134,33 @@ public class Recipe
     return recipeId;
   }
   /* Code from template association_GetMany */
-  public Folder getFolder(int index)
+  public PreferenceType getPreferenceType(int index)
   {
-    Folder aFolder = folders.get(index);
-    return aFolder;
+    PreferenceType aPreferenceType = preferenceTypes.get(index);
+    return aPreferenceType;
   }
 
-  public List<Folder> getFolders()
+  public List<PreferenceType> getPreferenceTypes()
   {
-    List<Folder> newFolders = Collections.unmodifiableList(folders);
-    return newFolders;
+    List<PreferenceType> newPreferenceTypes = Collections.unmodifiableList(preferenceTypes);
+    return newPreferenceTypes;
   }
 
-  public int numberOfFolders()
+  public int numberOfPreferenceTypes()
   {
-    int number = folders.size();
+    int number = preferenceTypes.size();
     return number;
   }
 
-  public boolean hasFolders()
+  public boolean hasPreferenceTypes()
   {
-    boolean has = folders.size() > 0;
+    boolean has = preferenceTypes.size() > 0;
     return has;
   }
 
-  public int indexOfFolder(Folder aFolder)
+  public int indexOfPreferenceType(PreferenceType aPreferenceType)
   {
-    int index = folders.indexOf(aFolder);
-    return index;
-  }
-  /* Code from template association_GetMany */
-  public Ingredient getIngredient(int index)
-  {
-    Ingredient aIngredient = ingredients.get(index);
-    return aIngredient;
-  }
-
-  public List<Ingredient> getIngredients()
-  {
-    List<Ingredient> newIngredients = Collections.unmodifiableList(ingredients);
-    return newIngredients;
-  }
-
-  public int numberOfIngredients()
-  {
-    int number = ingredients.size();
-    return number;
-  }
-
-  public boolean hasIngredients()
-  {
-    boolean has = ingredients.size() > 0;
-    return has;
-  }
-
-  public int indexOfIngredient(Ingredient aIngredient)
-  {
-    int index = ingredients.indexOf(aIngredient);
+    int index = preferenceTypes.indexOf(aPreferenceType);
     return index;
   }
   /* Code from template association_GetMany */
@@ -255,196 +194,144 @@ public class Recipe
     return index;
   }
   /* Code from template association_GetMany */
-  public PreferenceType getPreferenceType(int index)
+  public Folder getFolder(int index)
   {
-    PreferenceType aPreferenceType = preferenceTypes.get(index);
-    return aPreferenceType;
+    Folder aFolder = folders.get(index);
+    return aFolder;
   }
 
-  public List<PreferenceType> getPreferenceTypes()
+  public List<Folder> getFolders()
   {
-    List<PreferenceType> newPreferenceTypes = Collections.unmodifiableList(preferenceTypes);
-    return newPreferenceTypes;
+    List<Folder> newFolders = Collections.unmodifiableList(folders);
+    return newFolders;
   }
 
-  public int numberOfPreferenceTypes()
+  public int numberOfFolders()
   {
-    int number = preferenceTypes.size();
+    int number = folders.size();
     return number;
   }
 
-  public boolean hasPreferenceTypes()
+  public boolean hasFolders()
   {
-    boolean has = preferenceTypes.size() > 0;
+    boolean has = folders.size() > 0;
     return has;
   }
 
-  public int indexOfPreferenceType(PreferenceType aPreferenceType)
+  public int indexOfFolder(Folder aFolder)
   {
-    int index = preferenceTypes.indexOf(aPreferenceType);
+    int index = folders.indexOf(aFolder);
+    return index;
+  }
+  /* Code from template association_GetMany */
+  public Need getNeed(int index)
+  {
+    Need aNeed = needs.get(index);
+    return aNeed;
+  }
+
+  public List<Need> getNeeds()
+  {
+    List<Need> newNeeds = Collections.unmodifiableList(needs);
+    return newNeeds;
+  }
+
+  public int numberOfNeeds()
+  {
+    int number = needs.size();
+    return number;
+  }
+
+  public boolean hasNeeds()
+  {
+    boolean has = needs.size() > 0;
+    return has;
+  }
+
+  public int indexOfNeed(Need aNeed)
+  {
+    int index = needs.indexOf(aNeed);
     return index;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfFolders()
+  public static int minimumNumberOfPreferenceTypes()
   {
     return 0;
   }
   /* Code from template association_AddManyToManyMethod */
-  public boolean addFolder(Folder aFolder)
+  public boolean addPreferenceType(PreferenceType aPreferenceType)
   {
     boolean wasAdded = false;
-    if (folders.contains(aFolder)) { return false; }
-    folders.add(aFolder);
-    if (aFolder.indexOfRecipe(this) != -1)
+    if (preferenceTypes.contains(aPreferenceType)) { return false; }
+    preferenceTypes.add(aPreferenceType);
+    if (aPreferenceType.indexOfRecipe(this) != -1)
     {
       wasAdded = true;
     }
     else
     {
-      wasAdded = aFolder.addRecipe(this);
+      wasAdded = aPreferenceType.addRecipe(this);
       if (!wasAdded)
       {
-        folders.remove(aFolder);
+        preferenceTypes.remove(aPreferenceType);
       }
     }
     return wasAdded;
   }
   /* Code from template association_RemoveMany */
-  public boolean removeFolder(Folder aFolder)
+  public boolean removePreferenceType(PreferenceType aPreferenceType)
   {
     boolean wasRemoved = false;
-    if (!folders.contains(aFolder))
+    if (!preferenceTypes.contains(aPreferenceType))
     {
       return wasRemoved;
     }
 
-    int oldIndex = folders.indexOf(aFolder);
-    folders.remove(oldIndex);
-    if (aFolder.indexOfRecipe(this) == -1)
+    int oldIndex = preferenceTypes.indexOf(aPreferenceType);
+    preferenceTypes.remove(oldIndex);
+    if (aPreferenceType.indexOfRecipe(this) == -1)
     {
       wasRemoved = true;
     }
     else
     {
-      wasRemoved = aFolder.removeRecipe(this);
+      wasRemoved = aPreferenceType.removeRecipe(this);
       if (!wasRemoved)
       {
-        folders.add(oldIndex,aFolder);
+        preferenceTypes.add(oldIndex,aPreferenceType);
       }
     }
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addFolderAt(Folder aFolder, int index)
+  public boolean addPreferenceTypeAt(PreferenceType aPreferenceType, int index)
   {  
     boolean wasAdded = false;
-    if(addFolder(aFolder))
+    if(addPreferenceType(aPreferenceType))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfFolders()) { index = numberOfFolders() - 1; }
-      folders.remove(aFolder);
-      folders.add(index, aFolder);
+      if(index > numberOfPreferenceTypes()) { index = numberOfPreferenceTypes() - 1; }
+      preferenceTypes.remove(aPreferenceType);
+      preferenceTypes.add(index, aPreferenceType);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveFolderAt(Folder aFolder, int index)
+  public boolean addOrMovePreferenceTypeAt(PreferenceType aPreferenceType, int index)
   {
     boolean wasAdded = false;
-    if(folders.contains(aFolder))
+    if(preferenceTypes.contains(aPreferenceType))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfFolders()) { index = numberOfFolders() - 1; }
-      folders.remove(aFolder);
-      folders.add(index, aFolder);
+      if(index > numberOfPreferenceTypes()) { index = numberOfPreferenceTypes() - 1; }
+      preferenceTypes.remove(aPreferenceType);
+      preferenceTypes.add(index, aPreferenceType);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addFolderAt(aFolder, index);
-    }
-    return wasAdded;
-  }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfIngredients()
-  {
-    return 0;
-  }
-  /* Code from template association_AddManyToManyMethod */
-  public boolean addIngredient(Ingredient aIngredient)
-  {
-    boolean wasAdded = false;
-    if (ingredients.contains(aIngredient)) { return false; }
-    ingredients.add(aIngredient);
-    if (aIngredient.indexOfRecipe(this) != -1)
-    {
-      wasAdded = true;
-    }
-    else
-    {
-      wasAdded = aIngredient.addRecipe(this);
-      if (!wasAdded)
-      {
-        ingredients.remove(aIngredient);
-      }
-    }
-    return wasAdded;
-  }
-  /* Code from template association_RemoveMany */
-  public boolean removeIngredient(Ingredient aIngredient)
-  {
-    boolean wasRemoved = false;
-    if (!ingredients.contains(aIngredient))
-    {
-      return wasRemoved;
-    }
-
-    int oldIndex = ingredients.indexOf(aIngredient);
-    ingredients.remove(oldIndex);
-    if (aIngredient.indexOfRecipe(this) == -1)
-    {
-      wasRemoved = true;
-    }
-    else
-    {
-      wasRemoved = aIngredient.removeRecipe(this);
-      if (!wasRemoved)
-      {
-        ingredients.add(oldIndex,aIngredient);
-      }
-    }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addIngredientAt(Ingredient aIngredient, int index)
-  {  
-    boolean wasAdded = false;
-    if(addIngredient(aIngredient))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfIngredients()) { index = numberOfIngredients() - 1; }
-      ingredients.remove(aIngredient);
-      ingredients.add(index, aIngredient);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveIngredientAt(Ingredient aIngredient, int index)
-  {
-    boolean wasAdded = false;
-    if(ingredients.contains(aIngredient))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfIngredients()) { index = numberOfIngredients() - 1; }
-      ingredients.remove(aIngredient);
-      ingredients.add(index, aIngredient);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addIngredientAt(aIngredient, index);
+      wasAdded = addPreferenceTypeAt(aPreferenceType, index);
     }
     return wasAdded;
   }
@@ -531,101 +418,167 @@ public class Recipe
     return wasAdded;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfPreferenceTypes()
+  public static int minimumNumberOfFolders()
   {
     return 0;
   }
   /* Code from template association_AddManyToManyMethod */
-  public boolean addPreferenceType(PreferenceType aPreferenceType)
+  public boolean addFolder(Folder aFolder)
   {
     boolean wasAdded = false;
-    if (preferenceTypes.contains(aPreferenceType)) { return false; }
-    preferenceTypes.add(aPreferenceType);
-    if (aPreferenceType.indexOfRecipe(this) != -1)
+    if (folders.contains(aFolder)) { return false; }
+    folders.add(aFolder);
+    if (aFolder.indexOfRecipe(this) != -1)
     {
       wasAdded = true;
     }
     else
     {
-      wasAdded = aPreferenceType.addRecipe(this);
+      wasAdded = aFolder.addRecipe(this);
       if (!wasAdded)
       {
-        preferenceTypes.remove(aPreferenceType);
+        folders.remove(aFolder);
       }
     }
     return wasAdded;
   }
   /* Code from template association_RemoveMany */
-  public boolean removePreferenceType(PreferenceType aPreferenceType)
+  public boolean removeFolder(Folder aFolder)
   {
     boolean wasRemoved = false;
-    if (!preferenceTypes.contains(aPreferenceType))
+    if (!folders.contains(aFolder))
     {
       return wasRemoved;
     }
 
-    int oldIndex = preferenceTypes.indexOf(aPreferenceType);
-    preferenceTypes.remove(oldIndex);
-    if (aPreferenceType.indexOfRecipe(this) == -1)
+    int oldIndex = folders.indexOf(aFolder);
+    folders.remove(oldIndex);
+    if (aFolder.indexOfRecipe(this) == -1)
     {
       wasRemoved = true;
     }
     else
     {
-      wasRemoved = aPreferenceType.removeRecipe(this);
+      wasRemoved = aFolder.removeRecipe(this);
       if (!wasRemoved)
       {
-        preferenceTypes.add(oldIndex,aPreferenceType);
+        folders.add(oldIndex,aFolder);
       }
     }
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addPreferenceTypeAt(PreferenceType aPreferenceType, int index)
+  public boolean addFolderAt(Folder aFolder, int index)
   {  
     boolean wasAdded = false;
-    if(addPreferenceType(aPreferenceType))
+    if(addFolder(aFolder))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPreferenceTypes()) { index = numberOfPreferenceTypes() - 1; }
-      preferenceTypes.remove(aPreferenceType);
-      preferenceTypes.add(index, aPreferenceType);
+      if(index > numberOfFolders()) { index = numberOfFolders() - 1; }
+      folders.remove(aFolder);
+      folders.add(index, aFolder);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMovePreferenceTypeAt(PreferenceType aPreferenceType, int index)
+  public boolean addOrMoveFolderAt(Folder aFolder, int index)
   {
     boolean wasAdded = false;
-    if(preferenceTypes.contains(aPreferenceType))
+    if(folders.contains(aFolder))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfPreferenceTypes()) { index = numberOfPreferenceTypes() - 1; }
-      preferenceTypes.remove(aPreferenceType);
-      preferenceTypes.add(index, aPreferenceType);
+      if(index > numberOfFolders()) { index = numberOfFolders() - 1; }
+      folders.remove(aFolder);
+      folders.add(index, aFolder);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addPreferenceTypeAt(aPreferenceType, index);
+      wasAdded = addFolderAt(aFolder, index);
+    }
+    return wasAdded;
+  }
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfNeeds()
+  {
+    return 0;
+  }
+  /* Code from template association_AddManyToOne */
+  public Need addNeed(int aAmount, String aModifier, int aNeedId, Ingredient aIngredient)
+  {
+    return new Need(aAmount, aModifier, aNeedId, this, aIngredient);
+  }
+
+  public boolean addNeed(Need aNeed)
+  {
+    boolean wasAdded = false;
+    if (needs.contains(aNeed)) { return false; }
+    Recipe existingRecipe = aNeed.getRecipe();
+    boolean isNewRecipe = existingRecipe != null && !this.equals(existingRecipe);
+    if (isNewRecipe)
+    {
+      aNeed.setRecipe(this);
+    }
+    else
+    {
+      needs.add(aNeed);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeNeed(Need aNeed)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aNeed, as it must always have a recipe
+    if (!this.equals(aNeed.getRecipe()))
+    {
+      needs.remove(aNeed);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addNeedAt(Need aNeed, int index)
+  {  
+    boolean wasAdded = false;
+    if(addNeed(aNeed))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfNeeds()) { index = numberOfNeeds() - 1; }
+      needs.remove(aNeed);
+      needs.add(index, aNeed);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveNeedAt(Need aNeed, int index)
+  {
+    boolean wasAdded = false;
+    if(needs.contains(aNeed))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfNeeds()) { index = numberOfNeeds() - 1; }
+      needs.remove(aNeed);
+      needs.add(index, aNeed);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addNeedAt(aNeed, index);
     }
     return wasAdded;
   }
 
   public void delete()
   {
-    ArrayList<Folder> copyOfFolders = new ArrayList<Folder>(folders);
-    folders.clear();
-    for(Folder aFolder : copyOfFolders)
+    ArrayList<PreferenceType> copyOfPreferenceTypes = new ArrayList<PreferenceType>(preferenceTypes);
+    preferenceTypes.clear();
+    for(PreferenceType aPreferenceType : copyOfPreferenceTypes)
     {
-      aFolder.removeRecipe(this);
-    }
-    ArrayList<Ingredient> copyOfIngredients = new ArrayList<Ingredient>(ingredients);
-    ingredients.clear();
-    for(Ingredient aIngredient : copyOfIngredients)
-    {
-      aIngredient.removeRecipe(this);
+      aPreferenceType.removeRecipe(this);
     }
     ArrayList<DietType> copyOfDietTypes = new ArrayList<DietType>(dietTypes);
     dietTypes.clear();
@@ -633,11 +586,16 @@ public class Recipe
     {
       aDietType.removeRecipe(this);
     }
-    ArrayList<PreferenceType> copyOfPreferenceTypes = new ArrayList<PreferenceType>(preferenceTypes);
-    preferenceTypes.clear();
-    for(PreferenceType aPreferenceType : copyOfPreferenceTypes)
+    ArrayList<Folder> copyOfFolders = new ArrayList<Folder>(folders);
+    folders.clear();
+    for(Folder aFolder : copyOfFolders)
     {
-      aPreferenceType.removeRecipe(this);
+      aFolder.removeRecipe(this);
+    }
+    for(int i=needs.size(); i > 0; i--)
+    {
+      Need aNeed = needs.get(i - 1);
+      aNeed.delete();
     }
   }
 
@@ -645,7 +603,6 @@ public class Recipe
   public String toString()
   {
     return super.toString() + "["+
-            "name" + ":" + getName()+ "," +
             "steps" + ":" + getSteps()+ "," +
             "difficulty" + ":" + getDifficulty()+ "," +
             "time" + ":" + getTime()+ "," +

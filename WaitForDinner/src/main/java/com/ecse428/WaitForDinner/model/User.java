@@ -1,13 +1,14 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.35.0.8072.d3fbfafbc modeling language!*/
+/*This code was generated using the UMPLE 1.36.0.8091.03bcab5b3 modeling language!*/
 
 package com.ecse428.WaitForDinner.model;
 import java.util.*;
 import java.sql.Date;
+
 import jakarta.persistence.*;
 
 // line 5 "../../../../../model.ump"
-// line 74 "../../../../../model.ump"
+// line 84 "../../../../../model.ump"
 @Entity
 @Table(name = "users")
 public class User
@@ -24,92 +25,66 @@ public class User
   //------------------------
 
   //User Attributes
+  private String name;
+  private String email;
+  private String password;
+  private Date createdAt;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int userId;
-  
-  private String name;
-  
-  @Column(unique = true)
-  private String email;
-  
-  private String password;
-  
-  private Date createdAt;
 
-  //User Associations
-  @ManyToMany
-  @JoinTable(
-    name = "user_diet_type",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "diet_type_id")
-  )
-  private List<DietType> dietTypes;
-  
-  @ManyToMany
-  @JoinTable(
-    name = "user_preference_type",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "preference_type_id")
-  )
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "user_preference_types",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "preference_type_id"))
   private List<PreferenceType> preferenceTypes;
-  
-  @ManyToMany
-  @JoinTable(
-    name = "user_folder",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "folder_id")
-  )
-  private List<Folder> folders;
-  
-  @ManyToMany
-  @JoinTable(
-    name = "user_ingredient",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "ingredient_id")
-  )
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "user_diet_types",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "diet_type_id"))
+  private List<DietType> dietTypes;
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "user_ingredients",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "ingredient_id"))
   private List<Ingredient> ingredients;
-  
-  @ManyToMany
-  @JoinTable(
-    name = "user_pantry",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "pantry_id")
-  )
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "user_pantries",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "pantry_id"))
   private List<Pantry> pantries;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private List<Folder> folders;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public User(int aUserId, String aName, String aEmail, String aPassword, Date aCreatedAt)
+  public User(String aName, String aEmail, String aPassword, Date aCreatedAt, int aUserId)
   {
-    userId = aUserId;
     name = aName;
     password = aPassword;
     createdAt = aCreatedAt;
+    userId = aUserId;
     if (!setEmail(aEmail))
     {
       throw new RuntimeException("Cannot create due to duplicate email. See https://manual.umple.org?RE003ViolationofUniqueness.html");
     }
-    dietTypes = new ArrayList<DietType>();
     preferenceTypes = new ArrayList<PreferenceType>();
-    folders = new ArrayList<Folder>();
+    dietTypes = new ArrayList<DietType>();
     ingredients = new ArrayList<Ingredient>();
     pantries = new ArrayList<Pantry>();
+    folders = new ArrayList<Folder>();
   }
 
   //------------------------
   // INTERFACE
   //------------------------
-
-  public boolean setUserId(int aUserId)
-  {
-    boolean wasSet = false;
-    userId = aUserId;
-    wasSet = true;
-    return wasSet;
-  }
 
   public boolean setName(String aName)
   {
@@ -154,9 +129,12 @@ public class User
     return wasSet;
   }
 
-  public int getUserId()
+  public boolean setUserId(int aUserId)
   {
-    return userId;
+    boolean wasSet = false;
+    userId = aUserId;
+    wasSet = true;
+    return wasSet;
   }
 
   public String getName()
@@ -188,35 +166,10 @@ public class User
   {
     return createdAt;
   }
-  /* Code from template association_GetMany */
-  public DietType getDietType(int index)
-  {
-    DietType aDietType = dietTypes.get(index);
-    return aDietType;
-  }
 
-  public List<DietType> getDietTypes()
+  public int getUserId()
   {
-    List<DietType> newDietTypes = Collections.unmodifiableList(dietTypes);
-    return newDietTypes;
-  }
-
-  public int numberOfDietTypes()
-  {
-    int number = dietTypes.size();
-    return number;
-  }
-
-  public boolean hasDietTypes()
-  {
-    boolean has = dietTypes.size() > 0;
-    return has;
-  }
-
-  public int indexOfDietType(DietType aDietType)
-  {
-    int index = dietTypes.indexOf(aDietType);
-    return index;
+    return userId;
   }
   /* Code from template association_GetMany */
   public PreferenceType getPreferenceType(int index)
@@ -249,33 +202,33 @@ public class User
     return index;
   }
   /* Code from template association_GetMany */
-  public Folder getFolder(int index)
+  public DietType getDietType(int index)
   {
-    Folder aFolder = folders.get(index);
-    return aFolder;
+    DietType aDietType = dietTypes.get(index);
+    return aDietType;
   }
 
-  public List<Folder> getFolders()
+  public List<DietType> getDietTypes()
   {
-    List<Folder> newFolders = Collections.unmodifiableList(folders);
-    return newFolders;
+    List<DietType> newDietTypes = Collections.unmodifiableList(dietTypes);
+    return newDietTypes;
   }
 
-  public int numberOfFolders()
+  public int numberOfDietTypes()
   {
-    int number = folders.size();
+    int number = dietTypes.size();
     return number;
   }
 
-  public boolean hasFolders()
+  public boolean hasDietTypes()
   {
-    boolean has = folders.size() > 0;
+    boolean has = dietTypes.size() > 0;
     return has;
   }
 
-  public int indexOfFolder(Folder aFolder)
+  public int indexOfDietType(DietType aDietType)
   {
-    int index = folders.indexOf(aFolder);
+    int index = dietTypes.indexOf(aDietType);
     return index;
   }
   /* Code from template association_GetMany */
@@ -338,87 +291,35 @@ public class User
     int index = pantries.indexOf(aPantry);
     return index;
   }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfDietTypes()
+  /* Code from template association_GetMany */
+  public Folder getFolder(int index)
   {
-    return 0;
-  }
-  /* Code from template association_AddManyToManyMethod */
-  public boolean addDietType(DietType aDietType)
-  {
-    boolean wasAdded = false;
-    if (dietTypes.contains(aDietType)) { return false; }
-    dietTypes.add(aDietType);
-    if (aDietType.indexOfUser(this) != -1)
-    {
-      wasAdded = true;
-    }
-    else
-    {
-      wasAdded = aDietType.addUser(this);
-      if (!wasAdded)
-      {
-        dietTypes.remove(aDietType);
-      }
-    }
-    return wasAdded;
-  }
-  /* Code from template association_RemoveMany */
-  public boolean removeDietType(DietType aDietType)
-  {
-    boolean wasRemoved = false;
-    if (!dietTypes.contains(aDietType))
-    {
-      return wasRemoved;
-    }
-
-    int oldIndex = dietTypes.indexOf(aDietType);
-    dietTypes.remove(oldIndex);
-    if (aDietType.indexOfUser(this) == -1)
-    {
-      wasRemoved = true;
-    }
-    else
-    {
-      wasRemoved = aDietType.removeUser(this);
-      if (!wasRemoved)
-      {
-        dietTypes.add(oldIndex,aDietType);
-      }
-    }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addDietTypeAt(DietType aDietType, int index)
-  {  
-    boolean wasAdded = false;
-    if(addDietType(aDietType))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfDietTypes()) { index = numberOfDietTypes() - 1; }
-      dietTypes.remove(aDietType);
-      dietTypes.add(index, aDietType);
-      wasAdded = true;
-    }
-    return wasAdded;
+    Folder aFolder = folders.get(index);
+    return aFolder;
   }
 
-  public boolean addOrMoveDietTypeAt(DietType aDietType, int index)
+  public List<Folder> getFolders()
   {
-    boolean wasAdded = false;
-    if(dietTypes.contains(aDietType))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfDietTypes()) { index = numberOfDietTypes() - 1; }
-      dietTypes.remove(aDietType);
-      dietTypes.add(index, aDietType);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addDietTypeAt(aDietType, index);
-    }
-    return wasAdded;
+    List<Folder> newFolders = Collections.unmodifiableList(folders);
+    return newFolders;
+  }
+
+  public int numberOfFolders()
+  {
+    int number = folders.size();
+    return number;
+  }
+
+  public boolean hasFolders()
+  {
+    boolean has = folders.size() > 0;
+    return has;
+  }
+
+  public int indexOfFolder(Folder aFolder)
+  {
+    int index = folders.indexOf(aFolder);
+    return index;
   }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfPreferenceTypes()
@@ -503,84 +404,84 @@ public class User
     return wasAdded;
   }
   /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfFolders()
+  public static int minimumNumberOfDietTypes()
   {
     return 0;
   }
   /* Code from template association_AddManyToManyMethod */
-  public boolean addFolder(Folder aFolder)
+  public boolean addDietType(DietType aDietType)
   {
     boolean wasAdded = false;
-    if (folders.contains(aFolder)) { return false; }
-    folders.add(aFolder);
-    if (aFolder.indexOfUser(this) != -1)
+    if (dietTypes.contains(aDietType)) { return false; }
+    dietTypes.add(aDietType);
+    if (aDietType.indexOfUser(this) != -1)
     {
       wasAdded = true;
     }
     else
     {
-      wasAdded = aFolder.addUser(this);
+      wasAdded = aDietType.addUser(this);
       if (!wasAdded)
       {
-        folders.remove(aFolder);
+        dietTypes.remove(aDietType);
       }
     }
     return wasAdded;
   }
   /* Code from template association_RemoveMany */
-  public boolean removeFolder(Folder aFolder)
+  public boolean removeDietType(DietType aDietType)
   {
     boolean wasRemoved = false;
-    if (!folders.contains(aFolder))
+    if (!dietTypes.contains(aDietType))
     {
       return wasRemoved;
     }
 
-    int oldIndex = folders.indexOf(aFolder);
-    folders.remove(oldIndex);
-    if (aFolder.indexOfUser(this) == -1)
+    int oldIndex = dietTypes.indexOf(aDietType);
+    dietTypes.remove(oldIndex);
+    if (aDietType.indexOfUser(this) == -1)
     {
       wasRemoved = true;
     }
     else
     {
-      wasRemoved = aFolder.removeUser(this);
+      wasRemoved = aDietType.removeUser(this);
       if (!wasRemoved)
       {
-        folders.add(oldIndex,aFolder);
+        dietTypes.add(oldIndex,aDietType);
       }
     }
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
-  public boolean addFolderAt(Folder aFolder, int index)
+  public boolean addDietTypeAt(DietType aDietType, int index)
   {  
     boolean wasAdded = false;
-    if(addFolder(aFolder))
+    if(addDietType(aDietType))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfFolders()) { index = numberOfFolders() - 1; }
-      folders.remove(aFolder);
-      folders.add(index, aFolder);
+      if(index > numberOfDietTypes()) { index = numberOfDietTypes() - 1; }
+      dietTypes.remove(aDietType);
+      dietTypes.add(index, aDietType);
       wasAdded = true;
     }
     return wasAdded;
   }
 
-  public boolean addOrMoveFolderAt(Folder aFolder, int index)
+  public boolean addOrMoveDietTypeAt(DietType aDietType, int index)
   {
     boolean wasAdded = false;
-    if(folders.contains(aFolder))
+    if(dietTypes.contains(aDietType))
     {
       if(index < 0 ) { index = 0; }
-      if(index > numberOfFolders()) { index = numberOfFolders() - 1; }
-      folders.remove(aFolder);
-      folders.add(index, aFolder);
+      if(index > numberOfDietTypes()) { index = numberOfDietTypes() - 1; }
+      dietTypes.remove(aDietType);
+      dietTypes.add(index, aDietType);
       wasAdded = true;
     } 
     else 
     {
-      wasAdded = addFolderAt(aFolder, index);
+      wasAdded = addDietTypeAt(aDietType, index);
     }
     return wasAdded;
   }
@@ -748,27 +649,93 @@ public class User
     }
     return wasAdded;
   }
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfFolders()
+  {
+    return 0;
+  }
+  /* Code from template association_AddManyToOne */
+  public Folder addFolder(String aFolderName, int aFolderId)
+  {
+    return new Folder(aFolderName, aFolderId, this);
+  }
+
+  public boolean addFolder(Folder aFolder)
+  {
+    boolean wasAdded = false;
+    if (folders.contains(aFolder)) { return false; }
+    User existingUser = aFolder.getUser();
+    boolean isNewUser = existingUser != null && !this.equals(existingUser);
+    if (isNewUser)
+    {
+      aFolder.setUser(this);
+    }
+    else
+    {
+      folders.add(aFolder);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeFolder(Folder aFolder)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aFolder, as it must always have a user
+    if (!this.equals(aFolder.getUser()))
+    {
+      folders.remove(aFolder);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addFolderAt(Folder aFolder, int index)
+  {  
+    boolean wasAdded = false;
+    if(addFolder(aFolder))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfFolders()) { index = numberOfFolders() - 1; }
+      folders.remove(aFolder);
+      folders.add(index, aFolder);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveFolderAt(Folder aFolder, int index)
+  {
+    boolean wasAdded = false;
+    if(folders.contains(aFolder))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfFolders()) { index = numberOfFolders() - 1; }
+      folders.remove(aFolder);
+      folders.add(index, aFolder);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addFolderAt(aFolder, index);
+    }
+    return wasAdded;
+  }
 
   public void delete()
   {
     usersByEmail.remove(getEmail());
-    ArrayList<DietType> copyOfDietTypes = new ArrayList<DietType>(dietTypes);
-    dietTypes.clear();
-    for(DietType aDietType : copyOfDietTypes)
-    {
-      aDietType.removeUser(this);
-    }
     ArrayList<PreferenceType> copyOfPreferenceTypes = new ArrayList<PreferenceType>(preferenceTypes);
     preferenceTypes.clear();
     for(PreferenceType aPreferenceType : copyOfPreferenceTypes)
     {
       aPreferenceType.removeUser(this);
     }
-    ArrayList<Folder> copyOfFolders = new ArrayList<Folder>(folders);
-    folders.clear();
-    for(Folder aFolder : copyOfFolders)
+    ArrayList<DietType> copyOfDietTypes = new ArrayList<DietType>(dietTypes);
+    dietTypes.clear();
+    for(DietType aDietType : copyOfDietTypes)
     {
-      aFolder.removeUser(this);
+      aDietType.removeUser(this);
     }
     ArrayList<Ingredient> copyOfIngredients = new ArrayList<Ingredient>(ingredients);
     ingredients.clear();
@@ -782,16 +749,21 @@ public class User
     {
       aPantry.removeUser(this);
     }
+    for(int i=folders.size(); i > 0; i--)
+    {
+      Folder aFolder = folders.get(i - 1);
+      aFolder.delete();
+    }
   }
 
 
   public String toString()
   {
     return super.toString() + "["+
-            "userId" + ":" + getUserId()+ "," +
             "name" + ":" + getName()+ "," +
             "email" + ":" + getEmail()+ "," +
-            "password" + ":" + getPassword()+ "]" + System.getProperties().getProperty("line.separator") +
+            "password" + ":" + getPassword()+ "," +
+            "userId" + ":" + getUserId()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "createdAt" + "=" + (getCreatedAt() != null ? !getCreatedAt().equals(this)  ? getCreatedAt().toString().replaceAll("  ","    ") : "this" : "null");
   }
 }

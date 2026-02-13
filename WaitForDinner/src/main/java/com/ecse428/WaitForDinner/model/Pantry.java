@@ -1,11 +1,13 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.35.0.8072.d3fbfafbc modeling language!*/
+/*This code was generated using the UMPLE 1.36.0.8091.03bcab5b3 modeling language!*/
 
 package com.ecse428.WaitForDinner.model;
 import java.util.*;
+import java.sql.Date;
+
 import jakarta.persistence.*;
 
-// line 65 "../../../../../model.ump"
+// line 52 "../../../../../model.ump"
 // line 104 "../../../../../model.ump"
 @Entity
 @Table(name = "pantries")
@@ -17,23 +19,17 @@ public class Pantry
   //------------------------
 
   //Pantry Attributes
+  private String name;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int pantryId;
-  
-  private String name;
 
-  //Pantry Associations
-  @ManyToMany(mappedBy = "pantries")
+  @OneToMany(mappedBy = "pantry", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private List<History> histories;
+
+  @ManyToMany(mappedBy = "pantries", fetch = FetchType.LAZY)
   private List<User> users;
-  
-  @ManyToMany
-  @JoinTable(
-    name = "pantry_ingredient",
-    joinColumns = @JoinColumn(name = "pantry_id"),
-    inverseJoinColumns = @JoinColumn(name = "ingredient_id")
-  )
-  private List<Ingredient> ingredients;
 
   //------------------------
   // CONSTRUCTOR
@@ -43,8 +39,8 @@ public class Pantry
   {
     name = aName;
     pantryId = aPantryId;
+    histories = new ArrayList<History>();
     users = new ArrayList<User>();
-    ingredients = new ArrayList<Ingredient>();
   }
 
   //------------------------
@@ -77,6 +73,36 @@ public class Pantry
     return pantryId;
   }
   /* Code from template association_GetMany */
+  public History getHistory(int index)
+  {
+    History aHistory = histories.get(index);
+    return aHistory;
+  }
+
+  public List<History> getHistories()
+  {
+    List<History> newHistories = Collections.unmodifiableList(histories);
+    return newHistories;
+  }
+
+  public int numberOfHistories()
+  {
+    int number = histories.size();
+    return number;
+  }
+
+  public boolean hasHistories()
+  {
+    boolean has = histories.size() > 0;
+    return has;
+  }
+
+  public int indexOfHistory(History aHistory)
+  {
+    int index = histories.indexOf(aHistory);
+    return index;
+  }
+  /* Code from template association_GetMany */
   public User getUser(int index)
   {
     User aUser = users.get(index);
@@ -106,35 +132,77 @@ public class Pantry
     int index = users.indexOf(aUser);
     return index;
   }
-  /* Code from template association_GetMany */
-  public Ingredient getIngredient(int index)
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfHistories()
   {
-    Ingredient aIngredient = ingredients.get(index);
-    return aIngredient;
+    return 0;
+  }
+  /* Code from template association_AddManyToOne */
+  public History addHistory(boolean aHas, Date aDateAdded, Date aExpiryDate, int aAmount)
+  {
+    return new History(aHas, aDateAdded, aExpiryDate, aAmount, this);
   }
 
-  public List<Ingredient> getIngredients()
+  public boolean addHistory(History aHistory)
   {
-    List<Ingredient> newIngredients = Collections.unmodifiableList(ingredients);
-    return newIngredients;
+    boolean wasAdded = false;
+    if (histories.contains(aHistory)) { return false; }
+    Pantry existingPantry = aHistory.getPantry();
+    boolean isNewPantry = existingPantry != null && !this.equals(existingPantry);
+    if (isNewPantry)
+    {
+      aHistory.setPantry(this);
+    }
+    else
+    {
+      histories.add(aHistory);
+    }
+    wasAdded = true;
+    return wasAdded;
   }
 
-  public int numberOfIngredients()
+  public boolean removeHistory(History aHistory)
   {
-    int number = ingredients.size();
-    return number;
+    boolean wasRemoved = false;
+    //Unable to remove aHistory, as it must always have a pantry
+    if (!this.equals(aHistory.getPantry()))
+    {
+      histories.remove(aHistory);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addHistoryAt(History aHistory, int index)
+  {  
+    boolean wasAdded = false;
+    if(addHistory(aHistory))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfHistories()) { index = numberOfHistories() - 1; }
+      histories.remove(aHistory);
+      histories.add(index, aHistory);
+      wasAdded = true;
+    }
+    return wasAdded;
   }
 
-  public boolean hasIngredients()
+  public boolean addOrMoveHistoryAt(History aHistory, int index)
   {
-    boolean has = ingredients.size() > 0;
-    return has;
-  }
-
-  public int indexOfIngredient(Ingredient aIngredient)
-  {
-    int index = ingredients.indexOf(aIngredient);
-    return index;
+    boolean wasAdded = false;
+    if(histories.contains(aHistory))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfHistories()) { index = numberOfHistories() - 1; }
+      histories.remove(aHistory);
+      histories.add(index, aHistory);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addHistoryAt(aHistory, index);
+    }
+    return wasAdded;
   }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfUsers()
@@ -218,102 +286,19 @@ public class Pantry
     }
     return wasAdded;
   }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfIngredients()
-  {
-    return 0;
-  }
-  /* Code from template association_AddManyToManyMethod */
-  public boolean addIngredient(Ingredient aIngredient)
-  {
-    boolean wasAdded = false;
-    if (ingredients.contains(aIngredient)) { return false; }
-    ingredients.add(aIngredient);
-    if (aIngredient.indexOfPantry(this) != -1)
-    {
-      wasAdded = true;
-    }
-    else
-    {
-      wasAdded = aIngredient.addPantry(this);
-      if (!wasAdded)
-      {
-        ingredients.remove(aIngredient);
-      }
-    }
-    return wasAdded;
-  }
-  /* Code from template association_RemoveMany */
-  public boolean removeIngredient(Ingredient aIngredient)
-  {
-    boolean wasRemoved = false;
-    if (!ingredients.contains(aIngredient))
-    {
-      return wasRemoved;
-    }
-
-    int oldIndex = ingredients.indexOf(aIngredient);
-    ingredients.remove(oldIndex);
-    if (aIngredient.indexOfPantry(this) == -1)
-    {
-      wasRemoved = true;
-    }
-    else
-    {
-      wasRemoved = aIngredient.removePantry(this);
-      if (!wasRemoved)
-      {
-        ingredients.add(oldIndex,aIngredient);
-      }
-    }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addIngredientAt(Ingredient aIngredient, int index)
-  {  
-    boolean wasAdded = false;
-    if(addIngredient(aIngredient))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfIngredients()) { index = numberOfIngredients() - 1; }
-      ingredients.remove(aIngredient);
-      ingredients.add(index, aIngredient);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveIngredientAt(Ingredient aIngredient, int index)
-  {
-    boolean wasAdded = false;
-    if(ingredients.contains(aIngredient))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfIngredients()) { index = numberOfIngredients() - 1; }
-      ingredients.remove(aIngredient);
-      ingredients.add(index, aIngredient);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addIngredientAt(aIngredient, index);
-    }
-    return wasAdded;
-  }
 
   public void delete()
   {
+    for(int i=histories.size(); i > 0; i--)
+    {
+      History aHistory = histories.get(i - 1);
+      aHistory.delete();
+    }
     ArrayList<User> copyOfUsers = new ArrayList<User>(users);
     users.clear();
     for(User aUser : copyOfUsers)
     {
       aUser.removePantry(this);
-    }
-    ArrayList<Ingredient> copyOfIngredients = new ArrayList<Ingredient>(ingredients);
-    ingredients.clear();
-    for(Ingredient aIngredient : copyOfIngredients)
-    {
-      aIngredient.removePantry(this);
     }
   }
 
@@ -323,12 +308,5 @@ public class Pantry
     return super.toString() + "["+
             "name" + ":" + getName()+ "," +
             "pantryId" + ":" + getPantryId()+ "]";
-  }  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 68 ../../../../../model.ump
-  // int ownerId - commented out as it's not a valid field declaration
-  
+  }
 }

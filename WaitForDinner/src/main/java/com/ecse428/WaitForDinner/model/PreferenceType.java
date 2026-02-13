@@ -1,12 +1,13 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.35.0.8072.d3fbfafbc modeling language!*/
+/*This code was generated using the UMPLE 1.36.0.8091.03bcab5b3 modeling language!*/
 
 package com.ecse428.WaitForDinner.model;
 import java.util.*;
+
 import jakarta.persistence.*;
 
-// line 29 "../../../../../model.ump"
-// line 84 "../../../../../model.ump"
+// line 40 "../../../../../model.ump"
+// line 94 "../../../../../model.ump"
 @Entity
 @Table(name = "preference_types")
 public class PreferenceType
@@ -17,20 +18,22 @@ public class PreferenceType
   //------------------------
 
   //PreferenceType Attributes
+  private String name;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int preferenceTypeId;
-  
-  private String name;
 
-  //PreferenceType Associations
-  @ManyToMany(mappedBy = "preferenceTypes")
-  private List<Recipe> recipes;
-  
-  @ManyToMany(mappedBy = "preferenceTypes")
+  @ManyToMany(mappedBy = "preferenceTypes", fetch = FetchType.LAZY)
   private List<User> users;
-  
-  @ManyToMany(mappedBy = "preferenceTypes")
+
+  @ManyToMany(mappedBy = "preferenceTypes", fetch = FetchType.LAZY)
+  private List<Recipe> recipes;
+
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "preference_type_diet_types",
+      joinColumns = @JoinColumn(name = "preference_type_id"),
+      inverseJoinColumns = @JoinColumn(name = "diet_type_id"))
   private List<DietType> dietTypes;
 
   //------------------------
@@ -41,8 +44,8 @@ public class PreferenceType
   {
     name = aName;
     preferenceTypeId = aPreferenceTypeId;
-    recipes = new ArrayList<Recipe>();
     users = new ArrayList<User>();
+    recipes = new ArrayList<Recipe>();
     dietTypes = new ArrayList<DietType>();
   }
 
@@ -76,36 +79,6 @@ public class PreferenceType
     return preferenceTypeId;
   }
   /* Code from template association_GetMany */
-  public Recipe getRecipe(int index)
-  {
-    Recipe aRecipe = recipes.get(index);
-    return aRecipe;
-  }
-
-  public List<Recipe> getRecipes()
-  {
-    List<Recipe> newRecipes = Collections.unmodifiableList(recipes);
-    return newRecipes;
-  }
-
-  public int numberOfRecipes()
-  {
-    int number = recipes.size();
-    return number;
-  }
-
-  public boolean hasRecipes()
-  {
-    boolean has = recipes.size() > 0;
-    return has;
-  }
-
-  public int indexOfRecipe(Recipe aRecipe)
-  {
-    int index = recipes.indexOf(aRecipe);
-    return index;
-  }
-  /* Code from template association_GetMany */
   public User getUser(int index)
   {
     User aUser = users.get(index);
@@ -133,6 +106,36 @@ public class PreferenceType
   public int indexOfUser(User aUser)
   {
     int index = users.indexOf(aUser);
+    return index;
+  }
+  /* Code from template association_GetMany */
+  public Recipe getRecipe(int index)
+  {
+    Recipe aRecipe = recipes.get(index);
+    return aRecipe;
+  }
+
+  public List<Recipe> getRecipes()
+  {
+    List<Recipe> newRecipes = Collections.unmodifiableList(recipes);
+    return newRecipes;
+  }
+
+  public int numberOfRecipes()
+  {
+    int number = recipes.size();
+    return number;
+  }
+
+  public boolean hasRecipes()
+  {
+    boolean has = recipes.size() > 0;
+    return has;
+  }
+
+  public int indexOfRecipe(Recipe aRecipe)
+  {
+    int index = recipes.indexOf(aRecipe);
     return index;
   }
   /* Code from template association_GetMany */
@@ -164,88 +167,6 @@ public class PreferenceType
   {
     int index = dietTypes.indexOf(aDietType);
     return index;
-  }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfRecipes()
-  {
-    return 0;
-  }
-  /* Code from template association_AddManyToManyMethod */
-  public boolean addRecipe(Recipe aRecipe)
-  {
-    boolean wasAdded = false;
-    if (recipes.contains(aRecipe)) { return false; }
-    recipes.add(aRecipe);
-    if (aRecipe.indexOfPreferenceType(this) != -1)
-    {
-      wasAdded = true;
-    }
-    else
-    {
-      wasAdded = aRecipe.addPreferenceType(this);
-      if (!wasAdded)
-      {
-        recipes.remove(aRecipe);
-      }
-    }
-    return wasAdded;
-  }
-  /* Code from template association_RemoveMany */
-  public boolean removeRecipe(Recipe aRecipe)
-  {
-    boolean wasRemoved = false;
-    if (!recipes.contains(aRecipe))
-    {
-      return wasRemoved;
-    }
-
-    int oldIndex = recipes.indexOf(aRecipe);
-    recipes.remove(oldIndex);
-    if (aRecipe.indexOfPreferenceType(this) == -1)
-    {
-      wasRemoved = true;
-    }
-    else
-    {
-      wasRemoved = aRecipe.removePreferenceType(this);
-      if (!wasRemoved)
-      {
-        recipes.add(oldIndex,aRecipe);
-      }
-    }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addRecipeAt(Recipe aRecipe, int index)
-  {  
-    boolean wasAdded = false;
-    if(addRecipe(aRecipe))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfRecipes()) { index = numberOfRecipes() - 1; }
-      recipes.remove(aRecipe);
-      recipes.add(index, aRecipe);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveRecipeAt(Recipe aRecipe, int index)
-  {
-    boolean wasAdded = false;
-    if(recipes.contains(aRecipe))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfRecipes()) { index = numberOfRecipes() - 1; }
-      recipes.remove(aRecipe);
-      recipes.add(index, aRecipe);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addRecipeAt(aRecipe, index);
-    }
-    return wasAdded;
   }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfUsers()
@@ -326,6 +247,88 @@ public class PreferenceType
     else 
     {
       wasAdded = addUserAt(aUser, index);
+    }
+    return wasAdded;
+  }
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfRecipes()
+  {
+    return 0;
+  }
+  /* Code from template association_AddManyToManyMethod */
+  public boolean addRecipe(Recipe aRecipe)
+  {
+    boolean wasAdded = false;
+    if (recipes.contains(aRecipe)) { return false; }
+    recipes.add(aRecipe);
+    if (aRecipe.indexOfPreferenceType(this) != -1)
+    {
+      wasAdded = true;
+    }
+    else
+    {
+      wasAdded = aRecipe.addPreferenceType(this);
+      if (!wasAdded)
+      {
+        recipes.remove(aRecipe);
+      }
+    }
+    return wasAdded;
+  }
+  /* Code from template association_RemoveMany */
+  public boolean removeRecipe(Recipe aRecipe)
+  {
+    boolean wasRemoved = false;
+    if (!recipes.contains(aRecipe))
+    {
+      return wasRemoved;
+    }
+
+    int oldIndex = recipes.indexOf(aRecipe);
+    recipes.remove(oldIndex);
+    if (aRecipe.indexOfPreferenceType(this) == -1)
+    {
+      wasRemoved = true;
+    }
+    else
+    {
+      wasRemoved = aRecipe.removePreferenceType(this);
+      if (!wasRemoved)
+      {
+        recipes.add(oldIndex,aRecipe);
+      }
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addRecipeAt(Recipe aRecipe, int index)
+  {  
+    boolean wasAdded = false;
+    if(addRecipe(aRecipe))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfRecipes()) { index = numberOfRecipes() - 1; }
+      recipes.remove(aRecipe);
+      recipes.add(index, aRecipe);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveRecipeAt(Recipe aRecipe, int index)
+  {
+    boolean wasAdded = false;
+    if(recipes.contains(aRecipe))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfRecipes()) { index = numberOfRecipes() - 1; }
+      recipes.remove(aRecipe);
+      recipes.add(index, aRecipe);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addRecipeAt(aRecipe, index);
     }
     return wasAdded;
   }
@@ -414,17 +417,17 @@ public class PreferenceType
 
   public void delete()
   {
-    ArrayList<Recipe> copyOfRecipes = new ArrayList<Recipe>(recipes);
-    recipes.clear();
-    for(Recipe aRecipe : copyOfRecipes)
-    {
-      aRecipe.removePreferenceType(this);
-    }
     ArrayList<User> copyOfUsers = new ArrayList<User>(users);
     users.clear();
     for(User aUser : copyOfUsers)
     {
       aUser.removePreferenceType(this);
+    }
+    ArrayList<Recipe> copyOfRecipes = new ArrayList<Recipe>(recipes);
+    recipes.clear();
+    for(Recipe aRecipe : copyOfRecipes)
+    {
+      aRecipe.removePreferenceType(this);
     }
     ArrayList<DietType> copyOfDietTypes = new ArrayList<DietType>(dietTypes);
     dietTypes.clear();

@@ -1,12 +1,13 @@
 /*PLEASE DO NOT EDIT THIS CODE*/
-/*This code was generated using the UMPLE 1.35.0.8072.d3fbfafbc modeling language!*/
+/*This code was generated using the UMPLE 1.36.0.8091.03bcab5b3 modeling language!*/
 
 package com.ecse428.WaitForDinner.model;
 import java.util.*;
+
 import jakarta.persistence.*;
 
-// line 50 "../../../../../model.ump"
-// line 94 "../../../../../model.ump"
+// line 60 "../../../../../model.ump"
+// line 109 "../../../../../model.ump"
 @Entity
 @Table(name = "folders")
 public class Folder
@@ -17,28 +18,32 @@ public class Folder
   //------------------------
 
   //Folder Attributes
+  private String folderName;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int folderId;
-  
-  private String name;
 
-  //Folder Associations
-  @ManyToMany(mappedBy = "folders")
-  private List<User> users;
-  
-  @ManyToMany(mappedBy = "folders")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
+
+  @ManyToMany(mappedBy = "folders", fetch = FetchType.LAZY)
   private List<Recipe> recipes;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Folder(String aName, int aFolderId)
+  public Folder(String aFolderName, int aFolderId, User aUser)
   {
-    name = aName;
+    folderName = aFolderName;
     folderId = aFolderId;
-    users = new ArrayList<User>();
+    boolean didAddUser = setUser(aUser);
+    if (!didAddUser)
+    {
+      throw new RuntimeException("Unable to create folder due to user. See https://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
     recipes = new ArrayList<Recipe>();
   }
 
@@ -46,10 +51,10 @@ public class Folder
   // INTERFACE
   //------------------------
 
-  public boolean setName(String aName)
+  public boolean setFolderName(String aFolderName)
   {
     boolean wasSet = false;
-    name = aName;
+    folderName = aFolderName;
     wasSet = true;
     return wasSet;
   }
@@ -62,44 +67,19 @@ public class Folder
     return wasSet;
   }
 
-  public String getName()
+  public String getFolderName()
   {
-    return name;
+    return folderName;
   }
 
   public int getFolderId()
   {
     return folderId;
   }
-  /* Code from template association_GetMany */
-  public User getUser(int index)
+  /* Code from template association_GetOne */
+  public User getUser()
   {
-    User aUser = users.get(index);
-    return aUser;
-  }
-
-  public List<User> getUsers()
-  {
-    List<User> newUsers = Collections.unmodifiableList(users);
-    return newUsers;
-  }
-
-  public int numberOfUsers()
-  {
-    int number = users.size();
-    return number;
-  }
-
-  public boolean hasUsers()
-  {
-    boolean has = users.size() > 0;
-    return has;
-  }
-
-  public int indexOfUser(User aUser)
-  {
-    int index = users.indexOf(aUser);
-    return index;
+    return user;
   }
   /* Code from template association_GetMany */
   public Recipe getRecipe(int index)
@@ -131,87 +111,24 @@ public class Folder
     int index = recipes.indexOf(aRecipe);
     return index;
   }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfUsers()
+  /* Code from template association_SetOneToMany */
+  public boolean setUser(User aUser)
   {
-    return 0;
-  }
-  /* Code from template association_AddManyToManyMethod */
-  public boolean addUser(User aUser)
-  {
-    boolean wasAdded = false;
-    if (users.contains(aUser)) { return false; }
-    users.add(aUser);
-    if (aUser.indexOfFolder(this) != -1)
+    boolean wasSet = false;
+    if (aUser == null)
     {
-      wasAdded = true;
-    }
-    else
-    {
-      wasAdded = aUser.addFolder(this);
-      if (!wasAdded)
-      {
-        users.remove(aUser);
-      }
-    }
-    return wasAdded;
-  }
-  /* Code from template association_RemoveMany */
-  public boolean removeUser(User aUser)
-  {
-    boolean wasRemoved = false;
-    if (!users.contains(aUser))
-    {
-      return wasRemoved;
+      return wasSet;
     }
 
-    int oldIndex = users.indexOf(aUser);
-    users.remove(oldIndex);
-    if (aUser.indexOfFolder(this) == -1)
+    User existingUser = user;
+    user = aUser;
+    if (existingUser != null && !existingUser.equals(aUser))
     {
-      wasRemoved = true;
+      existingUser.removeFolder(this);
     }
-    else
-    {
-      wasRemoved = aUser.removeFolder(this);
-      if (!wasRemoved)
-      {
-        users.add(oldIndex,aUser);
-      }
-    }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addUserAt(User aUser, int index)
-  {  
-    boolean wasAdded = false;
-    if(addUser(aUser))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfUsers()) { index = numberOfUsers() - 1; }
-      users.remove(aUser);
-      users.add(index, aUser);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveUserAt(User aUser, int index)
-  {
-    boolean wasAdded = false;
-    if(users.contains(aUser))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfUsers()) { index = numberOfUsers() - 1; }
-      users.remove(aUser);
-      users.add(index, aUser);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addUserAt(aUser, index);
-    }
-    return wasAdded;
+    user.addFolder(this);
+    wasSet = true;
+    return wasSet;
   }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfRecipes()
@@ -298,11 +215,11 @@ public class Folder
 
   public void delete()
   {
-    ArrayList<User> copyOfUsers = new ArrayList<User>(users);
-    users.clear();
-    for(User aUser : copyOfUsers)
+    User placeholderUser = user;
+    this.user = null;
+    if(placeholderUser != null)
     {
-      aUser.removeFolder(this);
+      placeholderUser.removeFolder(this);
     }
     ArrayList<Recipe> copyOfRecipes = new ArrayList<Recipe>(recipes);
     recipes.clear();
@@ -316,7 +233,8 @@ public class Folder
   public String toString()
   {
     return super.toString() + "["+
-            "name" + ":" + getName()+ "," +
-            "folderId" + ":" + getFolderId()+ "]";
+            "folderName" + ":" + getFolderName()+ "," +
+            "folderId" + ":" + getFolderId()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "user = "+(getUser()!=null?Integer.toHexString(System.identityHashCode(getUser())):"null");
   }
 }
