@@ -1,4 +1,4 @@
-## Database Setup
+## Local Database Setup
 
 ### 1. Install pgAdmin
 Download and install pgAdmin from the official PostgreSQL website.
