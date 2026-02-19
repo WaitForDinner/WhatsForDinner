@@ -7,8 +7,8 @@ export type Profile = {
 const STORAGE_KEY = "wfd_profile"
 
 const DEFAULT_PROFILE: Profile = {
-    name: "John Doe",
-    email: "john@example.com",
+    name: "Robert Sabourin",
+    email: "rob@sabourin.com",
     profilePictureUrl: "https://via.placeholder.com/150",
 }
 
