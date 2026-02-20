@@ -45,4 +45,12 @@ public class AuthService {
 	public void logout(HttpSession session) {
 		session.invalidate();
 	}
+
+	public int requireLoggedInUserId(HttpSession session) {
+		Integer userId = (Integer) session.getAttribute(SESSION_USER_ID);
+		if (userId == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not logged in");
+		}
+		return userId;
+	}
 }
