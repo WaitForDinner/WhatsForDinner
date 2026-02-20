@@ -27,8 +27,10 @@ public class User
   //User Attributes
   private String name;
   private String email;
+  private String username;
   private String password;
   private Date createdAt;
+  private Date updatedAt;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,9 +67,12 @@ public class User
   // CONSTRUCTOR
   //------------------------
 
-  public User(String aName, String aEmail, String aPassword, Date aCreatedAt, int aUserId)
+  protected User() {}
+
+  public User(String aName, String aEmail, String aUsername, String aPassword, Date aCreatedAt, int aUserId)
   {
     name = aName;
+    username = aUsername;
     password = aPassword;
     createdAt = aCreatedAt;
     userId = aUserId;
@@ -80,6 +85,20 @@ public class User
     ingredients = new ArrayList<Ingredient>();
     pantries = new ArrayList<Pantry>();
     folders = new ArrayList<Folder>();
+  }
+
+  @PrePersist
+  protected void onCreate()
+  {
+    Date now = new Date(System.currentTimeMillis());
+    if (createdAt == null) { createdAt = now; }
+    updatedAt = now;
+  }
+
+  @PreUpdate
+  protected void onUpdate()
+  {
+    updatedAt = new Date(System.currentTimeMillis());
   }
 
   //------------------------
@@ -171,6 +190,33 @@ public class User
   {
     return userId;
   }
+
+  public boolean setUsername(String aUsername)
+  {
+    boolean wasSet = false;
+    username = aUsername;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public String getUsername()
+  {
+    return username;
+  }
+
+  public boolean setUpdatedAt(Date aUpdatedAt)
+  {
+    boolean wasSet = false;
+    updatedAt = aUpdatedAt;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public Date getUpdatedAt()
+  {
+    return updatedAt;
+  }
+
   /* Code from template association_GetMany */
   public PreferenceType getPreferenceType(int index)
   {
