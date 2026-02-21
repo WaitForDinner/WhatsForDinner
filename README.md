@@ -20,4 +20,4 @@ Open the `backend` folder in your IDE or terminal and run:
 ./gradlew clean build
 
 ### 5. Verify the Tables
-Return to pgAdmin, refresh the database, and confirm that 29 tables have been created in the `public` schema.
+Return to pgAdmin, refresh the database, and confirm that 18 tables have been created in the `public` schema.
