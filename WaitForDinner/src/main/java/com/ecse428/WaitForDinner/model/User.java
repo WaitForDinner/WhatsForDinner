@@ -27,8 +27,10 @@ public class User
   //User Attributes
   private String name;
   private String email;
+  private String username;
   private String password;
   private Date createdAt;
+  private Date updatedAt;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,24 +63,16 @@ public class User
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private List<Folder> folders;
 
-  @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(name = "user_allergens",
-      joinColumns = @JoinColumn(name = "user_id"),
-      inverseJoinColumns = @JoinColumn(name = "allergen_id"))
-  private List<Allergen> allergens;
-
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-  private List<CustomRestriction> customRestrictions;
-
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
   protected User() {}
 
-  public User(String aName, String aEmail, String aPassword, Date aCreatedAt, int aUserId)
+  public User(String aName, String aEmail, String aUsername, String aPassword, Date aCreatedAt, int aUserId)
   {
     name = aName;
+    username = aUsername;
     password = aPassword;
     createdAt = aCreatedAt;
     userId = aUserId;
@@ -91,8 +85,20 @@ public class User
     ingredients = new ArrayList<Ingredient>();
     pantries = new ArrayList<Pantry>();
     folders = new ArrayList<Folder>();
-    allergens = new ArrayList<Allergen>();
-    customRestrictions = new ArrayList<CustomRestriction>();
+  }
+
+  @PrePersist
+  protected void onCreate()
+  {
+    Date now = new Date(System.currentTimeMillis());
+    if (createdAt == null) { createdAt = now; }
+    updatedAt = now;
+  }
+
+  @PreUpdate
+  protected void onUpdate()
+  {
+    updatedAt = new Date(System.currentTimeMillis());
   }
 
   //------------------------
@@ -184,6 +190,33 @@ public class User
   {
     return userId;
   }
+
+  public boolean setUsername(String aUsername)
+  {
+    boolean wasSet = false;
+    username = aUsername;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public String getUsername()
+  {
+    return username;
+  }
+
+  public boolean setUpdatedAt(Date aUpdatedAt)
+  {
+    boolean wasSet = false;
+    updatedAt = aUpdatedAt;
+    wasSet = true;
+    return wasSet;
+  }
+
+  public Date getUpdatedAt()
+  {
+    return updatedAt;
+  }
+
   /* Code from template association_GetMany */
   public PreferenceType getPreferenceType(int index)
   {
@@ -733,60 +766,6 @@ public class User
       wasAdded = addFolderAt(aFolder, index);
     }
     return wasAdded;
-  }
-
-  public List<Allergen> getAllergens()
-  {
-    List<Allergen> newAllergens = Collections.unmodifiableList(allergens);
-    return newAllergens;
-  }
-
-  public boolean addAllergen(Allergen aAllergen)
-  {
-    boolean wasAdded = false;
-    if (allergens.contains(aAllergen)) { return false; }
-    allergens.add(aAllergen);
-    aAllergen.addUser(this);
-    wasAdded = true;
-    return wasAdded;
-  }
-
-  public boolean removeAllergen(Allergen aAllergen)
-  {
-    boolean wasRemoved = false;
-    if (allergens.contains(aAllergen))
-    {
-      allergens.remove(aAllergen);
-      aAllergen.removeUser(this);
-      wasRemoved = true;
-    }
-    return wasRemoved;
-  }
-
-  public List<CustomRestriction> getCustomRestrictions()
-  {
-    List<CustomRestriction> newCustomRestrictions = Collections.unmodifiableList(customRestrictions);
-    return newCustomRestrictions;
-  }
-
-  public boolean addCustomRestriction(CustomRestriction aRestriction)
-  {
-    boolean wasAdded = false;
-    if (customRestrictions.contains(aRestriction)) { return false; }
-    customRestrictions.add(aRestriction);
-    wasAdded = true;
-    return wasAdded;
-  }
-
-  public boolean removeCustomRestriction(CustomRestriction aRestriction)
-  {
-    boolean wasRemoved = false;
-    if (customRestrictions.contains(aRestriction))
-    {
-      customRestrictions.remove(aRestriction);
-      wasRemoved = true;
-    }
-    return wasRemoved;
   }
 
   public void delete()
