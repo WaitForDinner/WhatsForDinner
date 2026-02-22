@@ -30,17 +30,17 @@ public class AuthService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	/**
+	 * Utility function to check if the provided email. There is no username field in the user 
+	 * database table, so I did not implement it for username.
+	 *
+	 * @author Bilguun Tegshbayar
+	 * @param request A JSON object containing "email".
+	 * @return A JSON object with keys "emailUnique",
+	 *         each mapped to a boolean indicating uniqueness.
+	 *         Example response: { "emailUnique": true }
+	 */
 	public ResponseEntity<Map<String, Boolean>> checkUnique(@RequestBody Map<String, String> request) {
-		/**
-		 * Endpoint to check if the provided email. There is no username field in the user database 
-		 * table, so I did not implement it for username.
-		 *
-		 * @author Bilguun Tegshbayar
-		 * @param request A JSON object containing "email".
-		 * @return A JSON object with keys "emailUnique",
-		 *         each mapped to a boolean indicating uniqueness.
-		 *         Example response: { "emailUnique": true }
-		 */
 		String email = request.get("email");
 		boolean emailUnique = userRepository.findByEmail(email).isEmpty();
 		Map<String, Boolean> result = new HashMap<>();
