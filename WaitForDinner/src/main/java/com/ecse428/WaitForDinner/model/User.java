@@ -61,9 +61,20 @@ public class User
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private List<Folder> folders;
 
+  @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(name = "user_allergens",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "allergen_id"))
+  private List<Allergen> allergens;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private List<CustomRestriction> customRestrictions;
+
   //------------------------
   // CONSTRUCTOR
   //------------------------
+
+  protected User() {}
 
   public User(String aName, String aEmail, String aPassword, Date aCreatedAt, int aUserId)
   {
@@ -80,6 +91,8 @@ public class User
     ingredients = new ArrayList<Ingredient>();
     pantries = new ArrayList<Pantry>();
     folders = new ArrayList<Folder>();
+    allergens = new ArrayList<Allergen>();
+    customRestrictions = new ArrayList<CustomRestriction>();
   }
 
   //------------------------
@@ -720,6 +733,60 @@ public class User
       wasAdded = addFolderAt(aFolder, index);
     }
     return wasAdded;
+  }
+
+  public List<Allergen> getAllergens()
+  {
+    List<Allergen> newAllergens = Collections.unmodifiableList(allergens);
+    return newAllergens;
+  }
+
+  public boolean addAllergen(Allergen aAllergen)
+  {
+    boolean wasAdded = false;
+    if (allergens.contains(aAllergen)) { return false; }
+    allergens.add(aAllergen);
+    aAllergen.addUser(this);
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeAllergen(Allergen aAllergen)
+  {
+    boolean wasRemoved = false;
+    if (allergens.contains(aAllergen))
+    {
+      allergens.remove(aAllergen);
+      aAllergen.removeUser(this);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+
+  public List<CustomRestriction> getCustomRestrictions()
+  {
+    List<CustomRestriction> newCustomRestrictions = Collections.unmodifiableList(customRestrictions);
+    return newCustomRestrictions;
+  }
+
+  public boolean addCustomRestriction(CustomRestriction aRestriction)
+  {
+    boolean wasAdded = false;
+    if (customRestrictions.contains(aRestriction)) { return false; }
+    customRestrictions.add(aRestriction);
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeCustomRestriction(CustomRestriction aRestriction)
+  {
+    boolean wasRemoved = false;
+    if (customRestrictions.contains(aRestriction))
+    {
+      customRestrictions.remove(aRestriction);
+      wasRemoved = true;
+    }
+    return wasRemoved;
   }
 
   public void delete()
