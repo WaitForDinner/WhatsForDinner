@@ -1,14 +1,21 @@
 package com.ecse428.WaitForDinner.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.ecse428.WaitForDinner.dto.LoginRequestDto;
 import com.ecse428.WaitForDinner.dto.LoginResponseDto;
 import com.ecse428.WaitForDinner.model.User;
 import com.ecse428.WaitForDinner.repository.UserRepository;
+
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AuthService {
@@ -21,6 +28,24 @@ public class AuthService {
 	public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+	}
+
+	public ResponseEntity<Map<String, Boolean>> checkUnique(@RequestBody Map<String, String> request) {
+		/**
+		 * Endpoint to check if the provided email. There is no username field in the user database 
+		 * table, so I did not implement it for username.
+		 *
+		 * @author Bilguun Tegshbayar
+		 * @param request A JSON object containing "email".
+		 * @return A JSON object with keys "emailUnique",
+		 *         each mapped to a boolean indicating uniqueness.
+		 *         Example response: { "emailUnique": true }
+		 */
+		String email = request.get("email");
+		boolean emailUnique = userRepository.findByEmail(email).isEmpty();
+		Map<String, Boolean> result = new HashMap<>();
+		result.put("emailUnique", emailUnique);
+		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
 	public LoginResponseDto login(LoginRequestDto request, HttpSession session) {
